@@ -2,7 +2,7 @@
 
 /**
  * @file components/MessageInput.tsx
- * @description Handles voice input with silence-detection and SVG icons.
+ * @description Handles voice input with silence-detection, styled for the Cyberpunk Lime theme.
  */
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
@@ -40,7 +40,6 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
     
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
-      // Keep it continuous so it doesn't stop randomly on short pauses
       recognition.continuous = true; 
       recognition.interimResults = true;
       recognition.lang = "en-US";
@@ -55,10 +54,8 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
         }
         setInputValue(currentTranscript);
 
-        // Silence Detection (Debounce): Reset timer every time a word is spoken
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         
-        // If 2 seconds pass without a new word, auto-submit
         silenceTimerRef.current = setTimeout(() => {
           recognition.stop();
           submitTranscription();
@@ -104,31 +101,30 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <form onSubmit={handleSubmit} className="flex gap-2 w-full items-center">
+      {/* Adjusted padding and gap for mobile */}
+      <form onSubmit={handleSubmit} className="flex gap-2 md:gap-3 w-full items-center bg-gray-950/50 p-1.5 md:p-2 rounded-xl md:rounded-2xl border border-gray-800">
         
-        {/* SVG Toggle Button */}
         <button
           type="button"
           onClick={toggleMute}
-          className={`flex items-center justify-center w-12 h-12 rounded-full transition-colors flex-shrink-0 ${
+          // Changed w-14/h-14 to w-12/h-12 on mobile
+          className={`flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl transition-all flex-shrink-0 ${
             isMicActive 
               ? isListening 
-                ? "bg-red-500 text-white animate-pulse" 
-                : "bg-orange-400 text-white" 
-              : "bg-gray-200 text-gray-500 hover:bg-gray-300" 
+                ? "bg-lime-500 text-gray-900 animate-pulse shadow-[0_0_15px_rgba(132,204,22,0.5)]" 
+                : "bg-yellow-600 text-white" 
+              : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-lime-400" 
           }`}
           title={isMicActive ? "Mute Microphone" : "Unmute Microphone"}
         >
           {isMicActive ? (
-            // Active Mic SVG
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
               <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
               <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
               <line x1="12" y1="19" x2="12" y2="22"></line>
             </svg>
           ) : (
-            // Muted Mic SVG (with cross line)
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="md:w-6 md:h-6">
               <line x1="2" y1="2" x2="22" y2="22"></line>
               <path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"></path>
               <path d="M5 10v2a7 7 0 0 0 12 5l-1.5-1.5a5 5 0 0 1-9-5v-2"></path>
@@ -143,14 +139,16 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           disabled={disabled || isAiSpeaking}
-          placeholder={isMicActive ? "Speak naturally... (auto-sends after pause)" : "Type your response..."}
-          className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 text-black"
+          placeholder={isMicActive ? (isListening ? "Listening..." : "Paused...") : "Type your response..."}
+          // ADDED min-w-0 to fix flexbox squeezing
+          className="flex-1 min-w-0 p-3 md:p-4 text-sm md:text-base bg-gray-900 border border-gray-700 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500 disabled:opacity-50 disabled:cursor-not-allowed text-white placeholder-gray-500 transition-all"
         />
         
         <button
           type="submit"
           disabled={disabled || isAiSpeaking || !inputValue.trim()}
-          className="px-6 py-3 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:bg-blue-300 transition-colors"
+          // Adjusted height and padding for mobile
+          className="px-4 md:px-6 h-12 md:h-14 bg-gradient-to-r from-lime-400 to-green-500 text-gray-900 text-sm md:text-lg font-bold rounded-lg md:rounded-xl hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex-shrink-0"
         >
           Send
         </button>

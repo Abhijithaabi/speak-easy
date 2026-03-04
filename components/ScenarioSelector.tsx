@@ -25,36 +25,39 @@ export default function ScenarioSelector({ onSelectScenario }: ScenarioSelectorP
   const [customScenario, setCustomScenario] = useState("");
 
   return (
-    <main className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans">
-      <div className="max-w-xl w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Speak-Easy Roleplay</h1>
-        <p className="text-gray-600 mb-6 text-center">Choose a scenario to practice your communication skills.</p>
+    <main className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 font-sans bg-gray-950">
+      {/* Main Dark Card */}
+      <div className="max-w-xl w-full bg-gray-900 p-8 rounded-3xl shadow-2xl border border-gray-800">
+        <h1 className="text-3xl font-bold text-white mb-6 text-center">Choose Your Challenge</h1>
         
-        <div className="space-y-3 mb-6">
+        <div className="space-y-4 mb-8">
           {PRESET_SCENARIOS.map((scenario, idx) => (
             <button
               key={idx}
               onClick={() => onSelectScenario(scenario)}
-              className="w-full text-left p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all"
+              // Dark button that glows lime on hover
+              className="w-full text-left p-5 bg-gray-800/50 border border-gray-700 rounded-2xl hover:border-lime-500 hover:bg-gray-800 transition-all group"
             >
-              <p className="font-medium text-gray-800">{scenario}</p>
+              <p className="font-medium text-gray-200 group-hover:text-lime-300 transition-colors">{scenario}</p>
             </button>
           ))}
         </div>
 
-        <div className="border-t pt-6 mt-4">
-          <p className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wide">Or Create Your Own</p>
+        <div className="border-t border-gray-800 pt-8">
+          <p className="text-sm font-bold text-lime-400 mb-3 uppercase tracking-wider">Or Create Custom Scenario</p>
+          {/* Dark Textarea */}
           <textarea
             value={customScenario}
             onChange={(e) => setCustomScenario(e.target.value)}
-            placeholder="e.g., Telling my roommate they need to move out in 30 days..."
-            className="w-full p-3 border border-gray-300 rounded-md mb-3 focus:ring-2 focus:ring-blue-500 outline-none resize-none text-black"
+            placeholder="e.g., Telling a team member their performance is slipping..."
+            className="w-full p-4 bg-gray-800 border border-gray-700 rounded-xl mb-4 focus:ring-2 focus:ring-lime-500 focus:border-transparent outline-none resize-none text-white placeholder-gray-500"
             rows={3}
           />
+          {/* Lime Button */}
           <button
             onClick={() => customScenario.trim() && onSelectScenario(customScenario)}
             disabled={!customScenario.trim()}
-            className="w-full py-3 bg-gray-900 text-white rounded-md font-medium hover:bg-black disabled:bg-gray-300 transition-colors"
+            className="w-full py-4 bg-gradient-to-r from-lime-400 to-green-500 text-gray-900 text-lg font-bold rounded-xl hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             Start Custom Scenario
           </button>

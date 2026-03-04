@@ -126,44 +126,57 @@ export default function ActiveChat({ scenario, onQuit }: ActiveChatProps) {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 py-10 px-4 font-sans">
-      <div className="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md border border-gray-200">
-        <header className="mb-6 flex justify-between items-start">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">Active Scenario</h1>
-            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded border border-gray-100 mt-2">
-              {scenario}
-            </p>
+    <main className="flex-1 flex flex-col bg-gray-950 p-2 md:p-6 font-sans">
+      <div className="flex-1 flex flex-col max-w-3xl w-full mx-auto bg-gray-900 p-3 md:p-8 rounded-2xl md:rounded-3xl shadow-2xl border border-gray-800 min-h-0">
+        
+        {/* Adjusted header gaps and text sizes for mobile */}
+        <header className="mb-4 md:mb-6 flex justify-between items-start gap-2 md:gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg md:text-xl font-bold text-white mb-2 truncate">Current Scenario</h1>
+            <div className="bg-gray-800/80 p-2 md:p-3 rounded-lg md:rounded-xl border border-gray-700/50">
+              <p className="text-xs md:text-sm text-gray-300 leading-relaxed line-clamp-2 md:line-clamp-none">
+                {scenario}
+              </p>
+            </div>
           </div>
-          <button onClick={handleQuit} className="text-xs text-gray-400 hover:text-gray-700 uppercase font-bold tracking-wider">
-            Quit
+          
+          <button 
+            onClick={handleQuit} 
+            className="flex items-center gap-1 md:gap-2 text-xs md:text-sm text-gray-300 bg-gray-800 hover:bg-red-950 hover:text-red-400 border border-gray-700 px-3 py-2 md:px-4 md:py-3 rounded-lg md:rounded-xl transition-all font-bold tracking-wide flex-shrink-0"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
+            <span className="hidden sm:inline">Quit Scenario</span>
+            <span className="sm:hidden">Quit</span>
           </button>
         </header>
 
         <ChatBox messages={messages} />
 
-        {isLoading && <p className="text-sm text-gray-500 italic mb-2">Persona is thinking...</p>}
-        {isAiSpeaking && <p className="text-sm text-blue-500 italic mb-2">Persona is speaking...</p>}
-        {isEvaluating && <p className="text-sm text-blue-500 italic mb-2">Coach is compiling feedback...</p>}
+        <div className="min-h-[24px] mb-2">
+          {isLoading && <p className="text-xs md:text-sm text-lime-400/80 italic flex items-center gap-2"><span className="animate-pulse">●</span> Persona is thinking...</p>}
+          {isAiSpeaking && <p className="text-xs md:text-sm text-lime-500 italic flex items-center gap-2">🔊 Persona is speaking...</p>}
+          {isEvaluating && <p className="text-xs md:text-sm text-lime-400/80 italic flex items-center gap-2"><span className="animate-pulse">●</span> Coach is compiling feedback...</p>}
+        </div>
 
         {!evaluation ? (
-          <>
+          <div className="mt-auto">
             <MessageInput 
               onSendMessage={handleSendMessage} 
               disabled={isLoading || isEvaluating}
               isAiSpeaking={isAiSpeaking}
             />
             
-            <div className="mt-4 flex justify-end">
-              <button
-                onClick={handleEndScenario}
-                disabled={messages.length === 0 || isLoading || isEvaluating || isAiSpeaking}
-                className="text-sm text-red-600 hover:text-red-800 font-medium disabled:text-gray-400 px-4 py-2"
-              >
-                End Scenario & Get Feedback
-              </button>
-            </div>
-          </>
+            {messages.length > 0 && !isLoading && !isEvaluating && !isAiSpeaking && (
+               <div className="mt-3 flex justify-end">
+               <button
+                 onClick={handleEndScenario}
+                 className="text-xs md:text-sm text-red-400 hover:text-red-300 font-bold border border-red-900/30 bg-red-950/20 px-4 py-2 md:px-6 md:py-3 rounded-full transition-colors"
+               >
+                 End Scenario & Get Feedback
+               </button>
+             </div>
+            )}
+          </div>
         ) : (
           <ScoreCard evaluation={evaluation} onReset={handleQuit} />
         )}
