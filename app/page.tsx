@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import LandingPage from "../components/LandingPage";
 import ScenarioSelector from "../components/ScenarioSelector";
 import ActiveChat from "../components/ActiveChat";
+import LiveVoiceChat from "@/components/LiveVoiceChat";
 
 export default function Home() {
   const [currentView, setCurrentView] = useState<"landing" | "selector" | "chat">("landing");
@@ -39,7 +40,8 @@ export default function Home() {
       )}
 
       {currentView === "chat" && activeScenario && (
-        <ActiveChat scenario={activeScenario} onQuit={handleQuitChat} />
+        // <ActiveChat scenario={activeScenario} onQuit={handleQuitChat} />
+        <LiveVoiceChat scenario={activeScenario} onQuit={handleQuitChat} />
       )}
     </div>
   );

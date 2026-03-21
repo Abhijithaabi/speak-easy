@@ -1,10 +1,5 @@
 "use client";
 
-/**
- * @file components/MessageInput.tsx
- * @description Handles voice input with silence-detection, styled for the Cyberpunk Lime theme.
- */
-
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
 interface MessageInputProps {
@@ -20,6 +15,9 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
   
   const recognitionRef = useRef<any>(null);
   const latestInputRef = useRef(inputValue);
+  
+  // NEW: A separate buffer to hold finalized words and prevent mobile duplication
+  const finalTranscriptRef = useRef(""); 
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -32,6 +30,7 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
       onSendMessage(finalMessage);
       setInputValue("");
       latestInputRef.current = "";
+      finalTranscriptRef.current = ""; // Clear the buffer after sending
     }
   }, [onSendMessage]);
 
@@ -48,11 +47,21 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
       recognition.onend = () => setIsListening(false);
 
       recognition.onresult = (event: any) => {
-        let currentTranscript = "";
-        for (let i = 0; i < event.results.length; ++i) {
-          currentTranscript += event.results[i][0].transcript;
+        let interimTranscript = "";
+
+        // FIX: Start looping from the browser's specific resultIndex
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            // If the browser is 100% sure, lock the word into our final buffer
+            finalTranscriptRef.current += event.results[i][0].transcript;
+          } else {
+            // If still guessing, hold it temporarily
+            interimTranscript += event.results[i][0].transcript;
+          }
         }
-        setInputValue(currentTranscript);
+        
+        // Safely combine the locked words with the current guesses
+        setInputValue(finalTranscriptRef.current + interimTranscript);
 
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         
@@ -85,7 +94,10 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
 
   const toggleMute = () => {
     setIsMicActive((prev) => !prev);
-    if (isMicActive) setInputValue(""); 
+    if (isMicActive) {
+      setInputValue(""); 
+      finalTranscriptRef.current = ""; // Clear buffer on mute
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -96,18 +108,17 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
     if (inputValue.trim() && !disabled && !isAiSpeaking) {
       onSendMessage(inputValue.trim());
       setInputValue("");
+      finalTranscriptRef.current = ""; // Clear buffer on manual send
     }
   };
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      {/* Adjusted padding and gap for mobile */}
       <form onSubmit={handleSubmit} className="flex gap-2 md:gap-3 w-full items-center bg-gray-950/50 p-1.5 md:p-2 rounded-xl md:rounded-2xl border border-gray-800">
         
         <button
           type="button"
           onClick={toggleMute}
-          // Changed w-14/h-14 to w-12/h-12 on mobile
           className={`flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-lg md:rounded-xl transition-all flex-shrink-0 ${
             isMicActive 
               ? isListening 
@@ -140,14 +151,12 @@ export default function MessageInput({ onSendMessage, disabled, isAiSpeaking }: 
           onChange={(e) => setInputValue(e.target.value)}
           disabled={disabled || isAiSpeaking}
           placeholder={isMicActive ? (isListening ? "Listening..." : "Paused...") : "Type your response..."}
-          // ADDED min-w-0 to fix flexbox squeezing
           className="flex-1 min-w-0 p-3 md:p-4 text-sm md:text-base bg-gray-900 border border-gray-700 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-lime-500/50 focus:border-lime-500 disabled:opacity-50 disabled:cursor-not-allowed text-white placeholder-gray-500 transition-all"
         />
         
         <button
           type="submit"
           disabled={disabled || isAiSpeaking || !inputValue.trim()}
-          // Adjusted height and padding for mobile
           className="px-4 md:px-6 h-12 md:h-14 bg-gradient-to-r from-lime-400 to-green-500 text-gray-900 text-sm md:text-lg font-bold rounded-lg md:rounded-xl hover:opacity-90 disabled:opacity-30 disabled:cursor-not-allowed transition-all flex-shrink-0"
         >
           Send
