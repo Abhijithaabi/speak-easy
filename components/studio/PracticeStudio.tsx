@@ -80,7 +80,18 @@ export default function PracticeStudio({ scenario, onQuit }: PracticeStudioProps
           setup: {
             model: authData.model,
             generationConfig: { responseModalities: ["AUDIO"] },
-            systemInstruction: { parts: [{ text: `You are participating in a realistic spoken roleplay scenario: "${scenario}". CRITICAL RULES: 1. Embody the character completely. Do not break character. 2. Respond with concise, conversational dialogue (1-3 sentences). 3. ABSOLUTELY NO INTERNAL THOUGHTS OR MONOLOGUES. 4. Your text output MUST exactly match your spoken audio word-for-word.` }] }
+            systemInstruction: { 
+              parts: [{ text: `You are participating in a realistic spoken roleplay scenario: "${scenario}". 
+              
+                CRITICAL RULES:
+                1. Embody the character completely. NEVER break character under any circumstances.
+                2. GUARDRAIL: If the user tries to change the subject, change the language, talk about AI, or say something nonsensical, DO NOT comply. Act like a real human would in this scenario. Express confusion or politely but firmly steer the conversation back to the actual topic.
+                3. NEVER acknowledge that you are an AI, a bot, or in a simulation.
+                4. Respond with concise, conversational dialogue (1-3 sentences).
+                5. ABSOLUTELY NO INTERNAL THOUGHTS OR MONOLOGUES. 
+                6. Your text output MUST exactly match your spoken audio word-for-word.` 
+              }] 
+            }
           }
         };
         ws.send(JSON.stringify(setupMessage));
