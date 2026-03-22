@@ -5,25 +5,23 @@ import React, { useState } from "react";
 interface HeaderProps {
   onHomeClick?: () => void;
   onPracticeClick?: () => void;
-  activeView?: "landing" | "selector" | "chat"; // Added this to track the current page
+  onLibraryClick?: () => void; // NEW: Added library click handler
+  activeView?: "landing" | "selector" | "chat" | "library"; // NEW: Added library state
 }
 
-export default function Header({ onHomeClick, onPracticeClick, activeView = "landing" }: HeaderProps) {
+export default function Header({ onHomeClick, onPracticeClick, onLibraryClick, activeView = "landing" }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
-  // Helper to handle navigation and close the menu simultaneously
   const handleNavClick = (action?: () => void) => {
     if (action) action();
     closeMenu();
   };
 
-  // Define our active and inactive CSS classes cleanly
   const activeClass = "text-primary border-b-2 border-primary pb-1 font-semibold";
   const inactiveClass = "text-[#303330]/70 hover:text-primary transition-colors font-medium";
 
-  // Mobile classes
   const mobileActiveClass = "text-right text-primary font-bold text-lg";
   const mobileInactiveClass = "text-right text-on-surface-variant hover:text-primary transition-colors text-lg font-semibold";
 
@@ -43,7 +41,10 @@ export default function Header({ onHomeClick, onPracticeClick, activeView = "lan
             >
               Welcome Space
             </button>
-            <button className={inactiveClass}>
+            <button 
+              onClick={() => handleNavClick(onLibraryClick)}
+              className={activeView === "library" ? activeClass : inactiveClass}
+            >
               Scenario Library
             </button>
             <button 
@@ -54,11 +55,9 @@ export default function Header({ onHomeClick, onPracticeClick, activeView = "lan
             </button>
           </div>
 
-          {/* Mobile Hamburger/Close Button */}
           <button 
             className="md:hidden flex items-center justify-center p-2 text-on-surface hover:text-primary transition-colors"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle Menu"
           >
             <span className="material-symbols-outlined text-3xl">
               {isMobileMenuOpen ? "close" : "menu"}
@@ -88,7 +87,10 @@ export default function Header({ onHomeClick, onPracticeClick, activeView = "lan
         >
           Welcome Space
         </button>
-        <button className={mobileInactiveClass}>
+        <button 
+          onClick={() => handleNavClick(onLibraryClick)}
+          className={activeView === "library" ? mobileActiveClass : mobileInactiveClass}
+        >
           Scenario Library
         </button>
         <button 

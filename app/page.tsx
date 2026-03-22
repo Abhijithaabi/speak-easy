@@ -5,10 +5,11 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer"; 
 import HomeComponent from "../components/home/Home";
 import QuickScenario from "../components/scenarios/QuickScenario"; 
+import ScenarioLibrary from "../components/scenarios/ScenarioLibrary"; 
 import PracticeStudio from "../components/studio/PracticeStudio"; 
 
 export default function AppRouter() {
-  const [currentView, setCurrentView] = useState<"landing" | "selector" | "chat">("landing");
+  const [currentView, setCurrentView] = useState<"landing" | "selector" | "library" | "chat">("landing");
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
 
   const handleScenarioSelect = (scenario: string) => {
@@ -18,7 +19,8 @@ export default function AppRouter() {
 
   const handleQuitChat = () => {
     setActiveScenario(null);
-    setCurrentView("selector"); 
+    // THE FIX: Always return to the full library so you can see your saved custom scenarios!
+    setCurrentView("library"); 
   };
 
   const navigateHome = () => {
@@ -29,28 +31,41 @@ export default function AppRouter() {
   const navigateToSelector = () => {
     setActiveScenario(null);
     setCurrentView("selector");
-  }
+  };
+
+  const navigateToLibrary = () => {
+    setActiveScenario(null);
+    setCurrentView("library");
+  };
 
   return (
     <div className="flex flex-col min-h-[100dvh] bg-background font-sans">
       <Header 
         onHomeClick={navigateHome} 
         onPracticeClick={navigateToSelector} 
-        activeView={currentView} // FIX: Pass the current state to the header!
+        onLibraryClick={navigateToLibrary} 
+        activeView={currentView} 
       />
       
       <main className="flex-1 flex flex-col w-full">
         {currentView === "landing" && (
-          <HomeComponent onStart={navigateToSelector} />
+          <HomeComponent onStart={navigateToSelector} onExploreLibrary={navigateToLibrary} />
         )}
 
         {currentView === "selector" && (
           <>
             <QuickScenario 
               onSelectScenario={handleScenarioSelect} 
-              onExploreLibrary={() => alert("Full library coming soon!")}
+              onExploreLibrary={navigateToLibrary} 
             />
             <Footer /> 
+          </>
+        )}
+
+        {currentView === "library" && (
+          <>
+            <ScenarioLibrary onSelectScenario={handleScenarioSelect} />
+            <Footer />
           </>
         )}
 

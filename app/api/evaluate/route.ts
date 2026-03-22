@@ -1,7 +1,7 @@
 /**
  * @file app/api/evaluate/route.ts
  * @description Evaluates the user's performance using Meta's Llama 3 via Groq.
- * Uses the already-separated frontend transcript to prevent AI/User voice mixing.
+ * Includes strict "Fatal Criteria" to penalize off-topic or out-of-character behavior.
  */
 
 import { NextResponse } from "next/server";
@@ -26,7 +26,6 @@ export async function POST(request: Request) {
     // 2. SAFETY CHECK: Did the user actually say anything?
     const userSpoke = transcripts.some((t: any) => t.role === 'user' && t.text.trim().length > 0);
 
-    // If they were completely silent, bypass the AI and return a hardcoded failure scorecard.
     if (!userSpoke) {
         return NextResponse.json({
             metrics: [
@@ -40,20 +39,23 @@ export async function POST(request: Request) {
         }, { status: 200 });
     }
 
-    // 3. Evaluate using Llama 3
+    // 3. Evaluate using Llama 3 with STRICT off-topic penalties
     const evaluationPrompt = `
-    You are an expert communication coach. Read the transcript of the roleplay scenario: "${scenario}".
+    You are an expert, strict communication coach. Read the transcript of the roleplay scenario: "${scenario}".
     
     Here is the exact transcript of the conversation:
     """
     ${chatLog}
     """
     
-    CRITICAL INSTRUCTIONS:
-    1. Evaluate ONLY the "User"'s responses. Completely ignore the "Partner (AI)"'s text when scoring.
-    2. Evaluate their delivery based on the transcript text. Look for filler words (um, uh), stuttering, or awkward phrasing which indicate their confidence level.
-    3. DYNAMIC METRICS: Generate EXACTLY 3 evaluation metrics that are highly relevant to this specific scenario. 
-       - AT LEAST ONE metric MUST evaluate their presumed vocal delivery/tone based on their word choice and filler words.
+    CRITICAL INSTRUCTIONS (STRICT GRADING):
+    1. SCENARIO ALIGNMENT (FATAL CRITERIA): First, determine if the User actually engaged with the assigned scenario ("${scenario}"). If the User went completely off-topic, talked about random things (like changing languages, breaking character, or discussing AI), their scores MUST be harshly penalized (1-3 out of 10 maximum) and this failure must be the primary focus of the weaknesses.
+    2. Evaluate ONLY the "User"'s responses. Completely ignore the "Partner (AI)"'s text when scoring.
+    3. Evaluate their delivery based on the transcript text. Look for filler words (um, uh), stuttering, or awkward phrasing which indicate their confidence level.
+    4. DYNAMIC METRICS: Generate EXACTLY 3 evaluation metrics. 
+       - Metric 1 MUST be "Scenario Alignment" evaluating if they stayed on topic and played their role.
+       - Metric 2 MUST evaluate their presumed vocal delivery/tone (e.g., Vocal Confidence, Clarity) based on word choice/fillers.
+       - Metric 3 should be relevant to the specific scenario's goal (e.g., Negotiation Tactics, Empathy, Persuasion).
 
     Return ONLY a valid JSON object with exactly this structure:
     {
@@ -75,7 +77,7 @@ export async function POST(request: Request) {
         }
       ],
       "strengths": "<1-2 sentences on what the User did well logically or structurally>",
-      "weaknesses": "<1-2 sentences on where the User failed, struggled, or used too many filler words>",
+      "weaknesses": "<1-2 sentences on where the User failed, strayed off-topic, struggled, or used too many filler words>",
       "actionable_advice": "<2 specific, practical tips the User can use next time to improve>"
     }
     `;
@@ -93,7 +95,7 @@ export async function POST(request: Request) {
           { role: "user", content: evaluationPrompt }
         ],
         response_format: { type: "json_object" }, 
-        temperature: 0.2
+        temperature: 0.1 // Lowered temperature to make the AI less "creative" and more analytical
       })
     });
 
