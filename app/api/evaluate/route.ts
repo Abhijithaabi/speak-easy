@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: process.env.GROQ_MODEL_VERSATILE, 
+        model: process.env.GROQ_MODEL_VERSATILE || "llama-3.3-70b-versatile", 
         messages: [
           { role: "system", content: "You are an API that outputs strictly formatted JSON." },
           { role: "user", content: evaluationPrompt }
