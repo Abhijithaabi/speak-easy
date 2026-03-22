@@ -3,9 +3,10 @@ import React from "react";
 
 interface HeroProps {
   onStart: () => void;
+  onExploreLibrary: () => void;
 }
 
-export default function Hero({ onStart }: HeroProps) {
+export default function Hero({ onStart, onExploreLibrary }: HeroProps) {
   return (
     // ALIGNMENT FIX: Matched padding to px-6 md:px-8
     <section className="relative px-6 md:px-8 py-12 md:py-24 lg:py-32 overflow-hidden mt-8 md:mt-16">
@@ -34,6 +35,7 @@ export default function Hero({ onStart }: HeroProps) {
             </button>
             {/* HOVER FIX: Added distinct background and border color shifts on hover */}
             <button 
+              onClick={onExploreLibrary}
               className="px-10 py-5 text-primary font-bold text-lg rounded-full border-2 border-primary/10 hover:bg-primary/5 hover:border-primary/30 transition-all duration-300"
             >
               Explore Scenarios
