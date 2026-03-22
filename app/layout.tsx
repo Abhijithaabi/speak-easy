@@ -1,20 +1,15 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-// Load the modern "Outfit" font
-const outfit = Outfit({ 
+const plusJakarta = Plus_Jakarta_Sans({ 
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-plus-jakarta",
 });
 
 export const metadata: Metadata = {
-  title: "Speak Easy | Master Difficult Conversations",
-  description: "Practice salary negotiations and tough feedback in a safe, AI-powered environment.",
-  // Automatically creates a sleek microphone emoji favicon!
-  icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>",
-  },
+  title: "Speak Easy | Practice without pressure",
+  description: "A safe, AI-powered space to practice difficult conversations.",
 };
 
 export default function RootLayout({
@@ -23,8 +18,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={outfit.variable}>
-      <body className="font-sans bg-gray-950 text-white antialiased">
+    <html lang="en" className={plusJakarta.variable}>
+      <head>
+        {/* Load Material Symbols for your icons */}
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-sans bg-background text-on-surface overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
         {children}
       </body>
     </html>
