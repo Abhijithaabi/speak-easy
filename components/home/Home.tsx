@@ -1,0 +1,21 @@
+"use client";
+import React from "react";
+import Hero from "./Hero";
+import Journey from "./Journey";
+import Footer from "../layout/Footer";
+import SuccessStories from "./SuccessStories";
+
+interface HomeProps {
+  onStart: () => void;
+}
+
+export default function Home({ onStart }: HomeProps) {
+  return (
+    <div className="w-full flex flex-col">
+      <Hero onStart={onStart} />
+      <Journey />
+      <SuccessStories />
+      <Footer />
+    </div>
+  );
+}

@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import Header from "../components/Header";
-import LandingPage from "../components/LandingPage";
-import ScenarioSelector from "../components/ScenarioSelector";
-import ActiveChat from "../components/ActiveChat";
-import LiveVoiceChat from "@/components/LiveVoiceChat";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer"; 
+import HomeComponent from "../components/home/Home";
+import QuickScenario from "../components/scenarios/QuickScenario"; 
+import PracticeStudio from "../components/studio/PracticeStudio"; 
 
-export default function Home() {
+export default function AppRouter() {
   const [currentView, setCurrentView] = useState<"landing" | "selector" | "chat">("landing");
   const [activeScenario, setActiveScenario] = useState<string | null>(null);
 
@@ -18,31 +18,46 @@ export default function Home() {
 
   const handleQuitChat = () => {
     setActiveScenario(null);
-    setCurrentView("selector");
+    setCurrentView("selector"); 
   };
 
-  // Safe navigation function for the Header logo
   const navigateHome = () => {
     setActiveScenario(null);
     setCurrentView("landing");
   };
 
+  const navigateToSelector = () => {
+    setActiveScenario(null);
+    setCurrentView("selector");
+  }
+
   return (
-    <div className="flex flex-col min-h-[100dvh] bg-gray-950 font-sans selection:bg-lime-500/30 selection:text-white">
-      <Header onHomeClick={navigateHome} />
+    <div className="flex flex-col min-h-[100dvh] bg-background font-sans">
+      <Header 
+        onHomeClick={navigateHome} 
+        onPracticeClick={navigateToSelector} 
+        activeView={currentView} // FIX: Pass the current state to the header!
+      />
       
-      {currentView === "landing" && (
-        <LandingPage onStart={() => setCurrentView("selector")} />
-      )}
+      <main className="flex-1 flex flex-col w-full">
+        {currentView === "landing" && (
+          <HomeComponent onStart={navigateToSelector} />
+        )}
 
-      {currentView === "selector" && (
-        <ScenarioSelector onSelectScenario={handleScenarioSelect} />
-      )}
+        {currentView === "selector" && (
+          <>
+            <QuickScenario 
+              onSelectScenario={handleScenarioSelect} 
+              onExploreLibrary={() => alert("Full library coming soon!")}
+            />
+            <Footer /> 
+          </>
+        )}
 
-      {currentView === "chat" && activeScenario && (
-        // <ActiveChat scenario={activeScenario} onQuit={handleQuitChat} />
-        <LiveVoiceChat scenario={activeScenario} onQuit={handleQuitChat} />
-      )}
+        {currentView === "chat" && activeScenario && (
+          <PracticeStudio scenario={activeScenario} onQuit={handleQuitChat} />
+        )}
+      </main>
     </div>
   );
 }

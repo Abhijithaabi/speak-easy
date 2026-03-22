@@ -1,37 +1,103 @@
 @import "tailwindcss";
 
-:root {
-  /* Force the dark theme as the default */
-  --background: #030712; /* Tailwind gray-950 */
-  --foreground: #f9fafb; /* Tailwind gray-50 */
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-outfit), sans-serif;
-  --font-mono: var(--font-geist-mono);
+  --color-background: #faf9f6;
+  --color-surface: #faf9f6;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f4f4f0;
+  --color-on-surface: #303330;
+  --color-on-surface-variant: #5d605c;
+  
+  --color-primary: #366762;
+  --color-primary-dim: #2a5b56;
+  --color-on-primary: #e2fffa;
+  --color-primary-container: #b9ede5;
+  --color-on-primary-container: #285a55;
+  
+  --color-secondary: #536443;
+  --color-secondary-container: #d5e9bf;
+  --color-on-secondary-container: #465736;
+  
+  --color-tertiary: #615b78;
+  --color-tertiary-container: #dbd3f5;
+  --color-on-tertiary-container: #4c4763;
+  
+  --color-outline-variant: #b0b3ae;
+  --color-error: #a83836;
+
+  --font-sans: var(--font-plus-jakarta), sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), Arial, sans-serif;
-  /* Smooth scrolling for the chat box */
-  scroll-behavior: smooth; 
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  font-family: var(--font-sans);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Dark & Lime Scrollbar to match the theme */
-::-webkit-scrollbar {
-  width: 8px;
+/* Organic Shapes from The Mindful Canvas */
+.organic-shape-1 { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+.organic-shape-2 { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+
+/* Soft Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-surface-container-low); }
+::-webkit-scrollbar-thumb { background: var(--color-outline-variant); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-primary-dim); }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-::-webkit-scrollbar-track {
-  background: #111827; /* gray-900 */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
 }
-::-webkit-scrollbar-thumb {
-  background: #374151; /* gray-700 */
-  border-radius: 4px;
+/* Add to the bottom of globals.css */
+.reveal-on-scroll {
+  opacity: 0;
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #84cc16; /* lime-500 */
+.reveal-on-scroll.visible {
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+/* Add to the bottom of app/globals.css */
+
+.breathing-glow {
+    box-shadow: 0 0 60px 10px rgba(54, 103, 98, 0.15);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-outline-variant);
+    border-radius: 10px;
+}
+/* Add to the bottom of app/globals.css */
+
+@keyframes bloom {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+.bloom-animate {
+    animation: bloom 4s ease-in-out infinite;
+}
+
+.slow-spin {
+    animation: spin 12s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #366762;
 }
