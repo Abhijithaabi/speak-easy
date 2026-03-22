@@ -242,26 +242,44 @@ export default function PracticeStudio({ scenario, onQuit }: PracticeStudioProps
     setIsEvaluating(true);
     if (mediaRecorderRef.current?.state !== "inactive") {
       mediaRecorderRef.current!.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         
+        // Use the actual mime type of the device for the local playback
+        const actualMimeType = mediaRecorderRef.current?.mimeType || 'audio/webm';
+        const audioBlob = new Blob(audioChunksRef.current, { type: actualMimeType });
+        
+        // Generate the URL so the ScoreCard can play the audio locally
         const url = URL.createObjectURL(audioBlob);
         setAudioUrl(url);
 
-        const reader = new FileReader();
-        reader.readAsDataURL(audioBlob);
-        reader.onloadend = async () => {
-          const base64Audio = (reader.result as string).split(',')[1];
-          const mimeType = audioBlob.type.split(';')[0]; 
-          disconnect(); 
-          try {
-            const res = await fetch("/api/evaluate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ audioBase64: base64Audio, mimeType, scenario }) });
-            setEvaluation(await res.json());
-          } catch (err) { setError("Evaluation failed."); }
-          finally { setIsEvaluating(false); }
-        };
+        disconnect(); 
+        
+        try {
+          // THE FIX: Stop sending the heavy audio blob. 
+          // Send the perfectly separated 'transcripts' array instead!
+          const res = await fetch("/api/evaluate", { 
+            method: "POST", 
+            headers: { "Content-Type": "application/json" }, 
+            body: JSON.stringify({ scenario, transcripts }) 
+          });
+          
+          const data = await res.json();
+          
+          if (!res.ok || data.error || !data.metrics || !Array.isArray(data.metrics)) {
+              throw new Error(data.error || "The AI failed to format the scorecard. Please try again.");
+          }
+          
+          setEvaluation(data);
+        } catch (err: any) { 
+          setError(err.message || "Evaluation failed to process."); 
+        } finally { 
+          setIsEvaluating(false); 
+        }
       };
       mediaRecorderRef.current!.stop();
-    } else { disconnect(); setIsEvaluating(false); }
+    } else { 
+      disconnect(); 
+      setIsEvaluating(false); 
+    }
   };
 
   const disconnect = () => {
